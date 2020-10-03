@@ -17,6 +17,6 @@ class FeedState extends Equatable {
   }
 
   void setStatus(List<Status> status) {
-    status = status;
+    this.status = status;
   }
 }

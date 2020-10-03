@@ -67,7 +67,6 @@ class ServerFacade {
   }
 
   Future<FollowingResponse> getFollowing(FollowingRequest request) async {
-    // TODO: generate this data instead of hardcoding the response!
     await Future.delayed(Duration(seconds: 1));
     return FollowingResponse(
       followees: [],
@@ -76,28 +75,33 @@ class ServerFacade {
 
   Future<RegisterResponse> register(RegisterRequest request) async {
     await Future.delayed(Duration(seconds: 1));
+    final user = User(
+      firstName: request.firstName,
+      lastName: request.lastName,
+      handle: request.handle,
+      photoURL: request?.photoURL,
+    );
+    _users.add(user);
     return RegisterResponse(
-      user: User(
-        firstName: request.firstName,
-        lastName: request.lastName,
-        handle: request.handle,
-        photoURL: request.photoURL,
-      ),
+      user: user,
       token: AuthToken(),
     );
   }
 
   Future<LogoutResponse> logout(LogoutRequest request) async {
+    await Future.delayed(Duration(seconds: 1));
     return LogoutResponse(isSuccessful: true);
   }
 
   Future<PostStatusResponse> postStatus(PostStatusRequest request) async {
+    await Future.delayed(Duration(seconds: 1));
     _status.add(request.status);
     print(_status);
     return PostStatusResponse();
   }
 
   Future<StatusResponse> getStatus(StatusRequest request) async {
+    await Future.delayed(Duration(seconds: 1));
     return StatusResponse(status: _status);
   }
 }

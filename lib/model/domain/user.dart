@@ -15,9 +15,7 @@ class User extends Equatable {
     this.photoURL,
   }) : super();
 
-  String fullName() {
-    return firstName + " " + lastName;
-  }
+  String get fullName => firstName + " " + lastName;
 
   @override
   List<Object> get props => [

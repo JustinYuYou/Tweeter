@@ -5,7 +5,12 @@ import 'package:tweeter/model/model.dart';
 import 'package:tweeter/model/repository/user_repository.dart';
 import 'package:tweeter/view/routing.dart';
 
-class Login extends StatelessWidget {
+class Login extends StatefulWidget {
+  @override
+  _LoginState createState() => _LoginState();
+}
+
+class _LoginState extends State<Login> {
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
 
@@ -15,6 +20,7 @@ class Login extends StatelessWidget {
     return BlocConsumer<AuthCubit, AuthState>(
       listener: (context, state) {
         // If the state reported an error, display an error to the user.
+        print('Login listening');
         if (state.friendlyError.isNotEmpty) {
           Scaffold.of(context).showSnackBar(SnackBar(
             content: Text(state.friendlyError),
@@ -23,7 +29,7 @@ class Login extends StatelessWidget {
 
         // If the current user isn't null, then we signed in successfully.
         // Navigate to the home page.
-        if (context.repository<UserRepository>().getCurrentUser() != null)  {
+        if (context.repository<UserRepository>().getCurrentUser() != null) {
           print('Login successful');
           Navigator.of(context).pushReplacementNamed(AppRoutes.mainPage);
         } else {
@@ -71,5 +77,12 @@ class Login extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    usernameController.dispose();
+    passwordController.dispose();
   }
 }

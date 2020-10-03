@@ -70,7 +70,6 @@ class AuthCubit extends Cubit<AuthState> {
       emit(state.copyWith(
         isLoading: true,
         friendlyError: '',
-        // currentUser: null,
       ));
 
       final request = RegisterRequest(
@@ -83,11 +82,13 @@ class AuthCubit extends Cubit<AuthState> {
       // Make a call to the backend to login.
       final response = await ServerFacade().register(request);
 
-      // Emit a new state which will hold the newly logged in user.
-      emit(state.copyWith(
-        isLoading: false,
-        // currentUser: response.user,
-      ));
+      if (response.user != null) {
+        userRepo.setCurrentUser(response.user);
+        emit(state.copyWith(
+          isLoading: false,
+          // currentUser: response.user,
+        ));
+      }
     } on Error catch (e) {
       // Something went wrong. Display an error.
       emit(state.copyWith(

@@ -17,9 +17,11 @@ class FeedCubit extends Cubit<FeedState> {
     final request = StatusRequest();
     final response = await ServerFacade().getStatus(request);
     state.setStatus(response.status);
+    print('We did refresh');
+    print(state.props);
 
-    emit(state.copyWith(status: response.status));
-
+    emit(state);
+    print('And it got here');
     // if (response) {
     //   emit(state.copyWith(
     //     currentUser: null,

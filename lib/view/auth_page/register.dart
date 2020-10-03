@@ -2,7 +2,9 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:tweeter/model/cubit/auth_cubit/auth_cubit.dart';
 import 'package:tweeter/view/main_page/main_page.dart';
 
 class Register extends StatefulWidget {
@@ -33,40 +35,50 @@ class _RegisterState extends State<Register> {
 
   @override
   Widget build(BuildContext context) {
-    return Form(
-        child: Column(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        TextFormField(decoration: InputDecoration(labelText: 'First Name')),
-        TextFormField(decoration: InputDecoration(labelText: 'Last Name')),
-        TextFormField(
-            autovalidate: true,
-            validator: (val) {
-              if (val.isEmpty) {
-                return "Please enter user name";
-              }
+    return BlocConsumer<AuthCubit, AuthState>(
+      listener: (BuildContext context, state) {},
+      builder: (context, state) {
+        return Form(
+            child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            TextFormField(decoration: InputDecoration(labelText: 'First Name')),
+            TextFormField(decoration: InputDecoration(labelText: 'Last Name')),
+            TextFormField(
+                autovalidate: true,
+                validator: (val) {
+                  if (val.isEmpty) {
+                    return "Please enter user name";
+                  }
 
-              return null;
-            },
-            decoration: InputDecoration(labelText: 'User Name')),
-        TextFormField(decoration: InputDecoration(labelText: 'Password')),
-        RaisedButton(
-          child: Text('Take Picture'),
-          onPressed: () async {
-            await getImage();
-          },
-        ),
-        RaisedButton(
-          child: Text("Sign up"),
-          onPressed: () {
-            if (_formKey.currentState.validate()) {
-              Navigator.push(
-                  context, MaterialPageRoute(builder: (context) => MainPage()));
-            }
-          },
-        )
-      ],
-    ));
+                  return null;
+                },
+                decoration: InputDecoration(labelText: 'User Name')),
+            TextFormField(decoration: InputDecoration(labelText: 'Password')),
+            RaisedButton(
+              child: Text('Take Picture'),
+              onPressed: () async {
+                await getImage();
+              },
+            ),
+            RaisedButton(
+              child: Text("Sign up"),
+              onPressed: () {
+                if (_formKey.currentState.validate()) {
+                  context.bloc<AuthCubit>().registerUser(
+                      firstName: firstNameController.text,
+                      lastName: lastNameController.text,
+                      handle: handleController.text,
+                      password: passwordController.text);
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => MainPage()));
+                }
+              },
+            )
+          ],
+        ));
+      },
+    );
   }
 
   @override
