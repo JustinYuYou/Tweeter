@@ -3,14 +3,14 @@ part of 'auth_cubit.dart';
 class AuthState extends Equatable {
   const AuthState({
     this.isLoading,
-    this.currentUser,
+    // this.currentUser,
     this.friendlyError,
   });
 
   factory AuthState.initialState() {
     return AuthState(
       isLoading: false,
-      currentUser: null,
+      // currentUser: null,
       friendlyError: '',
     );
   }
@@ -19,7 +19,7 @@ class AuthState extends Equatable {
   final bool isLoading;
 
   /// The currently signed in user. Will be null if not signed in.
-  final User currentUser;
+  // final User currentUser;
 
   /// A friendly error detailing what went wrong when siging in.
   final String friendlyError;
@@ -27,19 +27,19 @@ class AuthState extends Equatable {
   @override
   List<Object> get props => [
         isLoading,
-        currentUser,
+        // currentUser,
         friendlyError,
       ];
 
   /// Copies the current object with some new fields.
   AuthState copyWith({
     bool isLoading,
-    User currentUser,
+    // User currentUser,
     String friendlyError,
   }) {
     return AuthState(
       isLoading: isLoading ?? this.isLoading,
-      currentUser: currentUser ?? this.currentUser,
+      // currentUser: currentUser ?? this.currentUser,
       friendlyError: friendlyError ?? this.friendlyError,
     );
   }

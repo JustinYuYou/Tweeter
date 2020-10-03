@@ -1,6 +1,8 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter/widgets.dart';
 import 'package:tweeter/model/model.dart';
+import 'package:tweeter/model/repository/user_repository.dart';
 import 'package:tweeter/net/net.dart';
 import 'package:tweeter/net/request/register_request.dart';
 
@@ -11,7 +13,13 @@ part 'auth_state.dart';
 ///
 /// More details here: https://pub.dev/packages/flutter_bloc
 class AuthCubit extends Cubit<AuthState> {
-  AuthCubit() : super(AuthState.initialState());
+  AuthCubit({
+    @required this.userRepo,
+  }) : super(AuthState.initialState());
+
+  /// A repository to hold the user data. The user is shared between
+  /// multiple blocs. So we put this in a repository.
+  final UserRepository userRepo;
 
   /// Logs in a user.
   Future<void> loginUser({
@@ -25,7 +33,7 @@ class AuthCubit extends Cubit<AuthState> {
       emit(state.copyWith(
         isLoading: true,
         friendlyError: '',
-        currentUser: null,
+        // currentUser: null,
       ));
 
       final request = LoginRequest(
@@ -35,17 +43,18 @@ class AuthCubit extends Cubit<AuthState> {
 
       // Make a call to the backend to login.
       final response = await ServerFacade().login(request);
+      userRepo.setCurrentUser(response.user);
 
       // Emit a new state which will hold the newly logged in user.
       emit(state.copyWith(
         isLoading: false,
-        currentUser: response.user,
+        // currentUser: response.user,
       ));
     } on Error catch (e) {
       // Something went wrong. Display an error.
       emit(state.copyWith(
         isLoading: false,
-        currentUser: null,
+        // currentUser: null,
         friendlyError: e.toString(),
       ));
     }
@@ -61,7 +70,7 @@ class AuthCubit extends Cubit<AuthState> {
       emit(state.copyWith(
         isLoading: true,
         friendlyError: '',
-        currentUser: null,
+        // currentUser: null,
       ));
 
       final request = RegisterRequest(
@@ -77,13 +86,13 @@ class AuthCubit extends Cubit<AuthState> {
       // Emit a new state which will hold the newly logged in user.
       emit(state.copyWith(
         isLoading: false,
-        currentUser: response.user,
+        // currentUser: response.user,
       ));
     } on Error catch (e) {
       // Something went wrong. Display an error.
       emit(state.copyWith(
         isLoading: false,
-        currentUser: null,
+        // currentUser: null,
         friendlyError: e.toString(),
       ));
     }

@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tweeter/model/cubit/cubit.dart';
 import 'package:tweeter/model/domain/status.dart';
+import 'package:tweeter/model/repository/user_repository.dart';
 import 'package:tweeter/view/main_page/story.dart';
 import 'package:tweeter/view/routing.dart';
 
@@ -23,7 +24,8 @@ class _MainPageState extends State<MainPage> {
   @override
   Widget build(BuildContext context) {
     final mainBloc = context.bloc<MainCubit>();
-    final currentUser = mainBloc.state.currentUser;
+    // final currentUser = mainBloc.state.currentUser;
+    final currentUser = context.repository<UserRepository>().getCurrentUser();
     final postWindow = AlertDialog(
       title: ListTile(
         leading: CircleAvatar(
@@ -44,7 +46,8 @@ class _MainPageState extends State<MainPage> {
           child: Text('Send'),
           onPressed: () {
             final text = postEditorController.text;
-            final status = Status(content: text);
+            final status =
+                Status(content: text, statusPostTime: DateTime.now());
             if (text.length != 0) {
               mainBloc.postStatus(status);
               postEditorController.clear();
@@ -84,7 +87,7 @@ class _MainPageState extends State<MainPage> {
 
       // If the current user isn't null, then we signed in successfully.
       // Navigate to the home page.
-      if (state.currentUser != null) {
+      if (currentUser != null) {
         print('Login successful');
         Navigator.of(context).pushReplacementNamed(AppRoutes.mainPage);
       } else {
@@ -107,7 +110,7 @@ class _MainPageState extends State<MainPage> {
     final theme = Theme.of(context);
     final nav = Navigator.of(context);
     final mainBloc = context.bloc<MainCubit>();
-    final currentUser = mainBloc.state.currentUser;
+    final currentUser = context.repository<UserRepository>().getCurrentUser();
 
     final tabs = TabBar(
       tabs: [
@@ -125,13 +128,11 @@ class _MainPageState extends State<MainPage> {
         children: [
           Spacer(),
           IconButton(
-            // TODO:
-            // Use a presenter to actually logout the user and THEN
-            // tell the view to navigate back to the auth page.
             color: theme.primaryIconTheme.color,
             onPressed: () {
               mainBloc.logOut();
-              return nav.pushReplacementNamed(AppRoutes.authPage);
+              nav.pushReplacementNamed(AppRoutes.authPage);
+              context.repository<UserRepository>().setCurrentUser(null);
             },
             icon: Icon(Icons.exit_to_app),
           ),
@@ -165,7 +166,8 @@ class _MainPageState extends State<MainPage> {
           Column(
             children: [
               Text(
-                mainBloc.state.follows.length.toString(),
+                '15',
+                // mainBloc.state.follows.length.toString(),
                 style: theme.primaryTextTheme.headline5,
               ),
               Text('Following'),

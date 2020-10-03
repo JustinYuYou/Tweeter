@@ -1,10 +1,13 @@
+import 'package:tweeter/model/domain/status.dart';
 import 'package:tweeter/net/net.dart';
 import 'package:tweeter/model/model.dart';
 import 'package:tweeter/net/request/get_status_request.dart';
 import 'package:tweeter/net/request/logout_request.dart';
+import 'package:tweeter/net/request/post_status_request.dart';
 import 'package:tweeter/net/request/register_request.dart';
 import 'package:tweeter/net/response/get_status_response.dart';
 import 'package:tweeter/net/response/logout_response.dart';
+import 'package:tweeter/net/response/post_status_response.dart';
 import 'package:tweeter/net/response/register_response.dart';
 import 'package:tweeter/net/user_generator.dart';
 
@@ -12,6 +15,10 @@ class ServerFacade {
   static final ServerFacade _instance = ServerFacade._();
   List<User> _users;
   List<Follow> _follows;
+  List<Status> _status = [
+    Status(content: 'hihihi'),
+    Status(content: 'testsetset')
+  ];
 
   factory ServerFacade() {
     return _instance;
@@ -84,7 +91,13 @@ class ServerFacade {
     return LogoutResponse(isSuccessful: true);
   }
 
+  Future<PostStatusResponse> postStatus(PostStatusRequest request) async {
+    _status.add(request.status);
+    print(_status);
+    return PostStatusResponse();
+  }
+
   Future<StatusResponse> getStatus(StatusRequest request) async {
-    return StatusResponse();
+    return StatusResponse(status: _status);
   }
 }
