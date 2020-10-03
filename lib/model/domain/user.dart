@@ -22,4 +22,9 @@ class User extends Equatable {
         handle,
         photoURL,
       ];
+
+  @override
+  String toString() {
+    return '$firstName, $lastName, $handle';
+  }
 }

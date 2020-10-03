@@ -13,6 +13,10 @@ dependencies:
   provider: ^4.3.2+2
   equatable: ^1.2.5
   flutter_bloc: ^6.0.5
+  image_picker: ^0.6.7+10
+  http: ^0.12.2
+  pull_to_refresh: ^1.6.2
+  toast: ^0.1.5
 
 dev_dependencies:
   flutter_test:

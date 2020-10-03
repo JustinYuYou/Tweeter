@@ -5,6 +5,9 @@ import 'package:tweeter/model/model.dart';
 import 'package:tweeter/view/routing.dart';
 
 class Login extends StatelessWidget {
+  final usernameController = TextEditingController();
+  final passwordController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     // Use the auth bloc to rebuild the view.
@@ -22,6 +25,10 @@ class Login extends StatelessWidget {
         if (state.currentUser != null) {
           print('Login successful');
           Navigator.of(context).pushReplacementNamed(AppRoutes.mainPage);
+        } else {
+          Scaffold.of(context).showSnackBar(SnackBar(
+            content: Text("The user doesn't exist"),
+          ));
         }
       },
       builder: _buildView,
@@ -30,7 +37,6 @@ class Login extends StatelessWidget {
 
   Widget _buildView(BuildContext context, AuthState state) {
     final authBloc = context.bloc<AuthCubit>();
-
     // If the auth state is loading, display a loading bar.
     if (state.isLoading) {
       return Center(
@@ -39,27 +45,29 @@ class Login extends StatelessWidget {
     }
 
     final loginButton = RaisedButton(
-      // TODO:
-      // Use data from a login form to call the login function.
       onPressed: () => authBloc.loginUser(
-        handle: 'johndoe',
-        password: 'password',
+        handle: usernameController.text,
+        password: passwordController.text,
       ),
       child: Text('Log in'),
     );
 
-    // TODO:
-    // Actually display a login form here.
     return Padding(
       padding: const EdgeInsets.all(16.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text('An almost completely unimplemented login view. Replace '
-              'this with your own and update the code in the LoginService.'),
-          loginButton,
-        ],
+      child: Form(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            TextFormField(
+                controller: usernameController,
+                decoration: InputDecoration(labelText: 'Username')),
+            TextFormField(
+                controller: passwordController,
+                decoration: InputDecoration(labelText: 'Password')),
+            loginButton,
+          ],
+        ),
       ),
     );
   }

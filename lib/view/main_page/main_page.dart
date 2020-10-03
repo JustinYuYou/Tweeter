@@ -1,49 +1,113 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:tweeter/model/cubit/cubit.dart';
+import 'package:tweeter/model/domain/status.dart';
+import 'package:tweeter/view/main_page/story.dart';
 import 'package:tweeter/view/routing.dart';
 
-class MainPage extends StatelessWidget {
+import 'feed.dart';
+import 'followers.dart';
+import 'following.dart';
+
+class MainPage extends StatefulWidget {
   static final _tabCount = 4;
 
   @override
-  Widget build(BuildContext context) {
-    final header = _buildHeader(context);
+  _MainPageState createState() => _MainPageState();
+}
 
+class _MainPageState extends State<MainPage> {
+  final postEditorController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    final mainBloc = context.bloc<MainCubit>();
+    final currentUser = mainBloc.state.currentUser;
+    final postWindow = AlertDialog(
+      title: ListTile(
+        leading: CircleAvatar(
+          radius: 30,
+          backgroundImage: NetworkImage(
+            currentUser.photoURL,
+          ),
+        ),
+        subtitle: Text(currentUser.handle),
+      ),
+      content: TextField(
+        controller: postEditorController,
+        decoration: InputDecoration.collapsed(hintText: "What is on your mind"),
+        maxLines: null,
+      ),
+      actions: <Widget>[
+        FlatButton(
+          child: Text('Send'),
+          onPressed: () {
+            final text = postEditorController.text;
+            final status = Status(content: text);
+            if (text.length != 0) {
+              mainBloc.postStatus(status);
+              postEditorController.clear();
+            }
+          },
+        )
+      ],
+    );
+
+    final header = _buildHeader(context);
     final fab = Builder(
       builder: (context) => FloatingActionButton(
         child: Icon(Icons.drafts),
         onPressed: () {
-          Scaffold.of(context).showSnackBar(SnackBar(
-            content: Text('Replace with your own action'),
-          ));
+          showDialog(context: context, builder: (_) => postWindow);
         },
       ),
     );
 
-    // TODO: Create new widgets for the story, feed, follower, following
     // and place them here.
     final tabView = TabBarView(
       children: [
-        Container(),
-        Container(),
-        Container(),
-        Container(),
+        Feed(),
+        Story(),
+        Following(),
+        Followers(),
       ],
     );
 
-    return DefaultTabController(
-      length: _tabCount,
-      child: Scaffold(
-        appBar: header,
-        body: tabView,
-        floatingActionButton: fab,
-      ),
-    );
+    return BlocConsumer<MainCubit, MainState>(listener: (context, state) {
+      // If the state reported an error, display an error to the user.
+      if (state.friendlyError.isNotEmpty) {
+        Scaffold.of(context).showSnackBar(SnackBar(
+          content: Text(state.friendlyError),
+        ));
+      }
+
+      // If the current user isn't null, then we signed in successfully.
+      // Navigate to the home page.
+      if (state.currentUser != null) {
+        print('Login successful');
+        Navigator.of(context).pushReplacementNamed(AppRoutes.mainPage);
+      } else {
+        Scaffold.of(context).showSnackBar(SnackBar(
+          content: Text("The user doesn't exist"),
+        ));
+      }
+    }, builder: (context, state) {
+      return DefaultTabController(
+          length: MainPage._tabCount,
+          child: Scaffold(
+            appBar: header,
+            body: tabView,
+            floatingActionButton: fab,
+          ));
+    });
   }
 
   Widget _buildHeader(BuildContext context) {
     final theme = Theme.of(context);
     final nav = Navigator.of(context);
+    final mainBloc = context.bloc<MainCubit>();
+    final currentUser = mainBloc.state.currentUser;
 
     final tabs = TabBar(
       tabs: [
@@ -65,7 +129,10 @@ class MainPage extends StatelessWidget {
             // Use a presenter to actually logout the user and THEN
             // tell the view to navigate back to the auth page.
             color: theme.primaryIconTheme.color,
-            onPressed: () => nav.pushReplacementNamed(AppRoutes.authPage),
+            onPressed: () {
+              mainBloc.logOut();
+              return nav.pushReplacementNamed(AppRoutes.authPage);
+            },
             icon: Icon(Icons.exit_to_app),
           ),
         ],
@@ -84,21 +151,21 @@ class MainPage extends StatelessWidget {
               CircleAvatar(
                 radius: 30,
                 backgroundImage: NetworkImage(
-                  'https://picsum.photos/250?image=9',
+                  currentUser.photoURL,
                 ),
               ),
               Text(
-                'John Doe',
+                currentUser.firstName + " " + currentUser.lastName,
                 style: theme.primaryTextTheme.headline6,
               ),
-              Text('@handle'),
+              Text(currentUser.handle),
             ],
           ),
           Spacer(),
           Column(
             children: [
               Text(
-                '15',
+                mainBloc.state.follows.length.toString(),
                 style: theme.primaryTextTheme.headline5,
               ),
               Text('Following'),
@@ -143,5 +210,11 @@ class MainPage extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    postEditorController.dispose();
   }
 }
