@@ -1,0 +1,3 @@
+class StatusRequest {
+  String requestUserHandle;
+}
